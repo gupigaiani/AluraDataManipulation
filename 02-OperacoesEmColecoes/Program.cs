@@ -22,9 +22,39 @@ legiaoUrbana.Add(musica2);
 legiaoUrbana.Add(musica4);
 legiaoUrbana.Add(musica5);
 
-ExibirPlaylist(legiaoUrbana);
+//ExibirPlaylist(legiaoUrbana);
 
-ExibirMaisTocadas(rockNacional, legiaoUrbana);
+var player = new PlayerDeMusica();
+player.AdicionarNaFila(musica1);
+player.AdicionarNaFila(rockNacional);
+
+ExibirFila(player);
+
+var proxima = player.ProximaMusicaDaFila();
+if (proxima is not null)
+    Console.WriteLine($"\nTocando a música: {proxima.Titulo}...");
+else
+    Console.WriteLine("\nFila de reprodução vazia");
+
+ExibirFila(player);
+
+//ExibirMaisTocadas(rockNacional, legiaoUrbana);
+
+// rockNacional.OrdenarPorDuracao();
+
+// ExibirPlaylist(rockNacional);
+
+// rockNacional.OrdenarPorArtista();
+// ExibirPlaylist(rockNacional);
+
+void ExibirFila(PlayerDeMusica player)
+{
+    Console.WriteLine("\nExibindo a fila de reprodução:");
+    foreach (var musica in player.Fila())
+    {
+        Console.WriteLine($"\t - {musica.Titulo}");
+    }
+}
 
 void ExibirMaisTocadas(Playlist playlist1, Playlist playlist2)
 {
@@ -60,13 +90,6 @@ void ExibirMaisTocadas(Playlist playlist1, Playlist playlist2)
         if (contador > 3) break;
     }
 }
-
-// rockNacional.OrdenarPorDuracao();
-
-// ExibirPlaylist(rockNacional);
-
-// rockNacional.OrdenarPorArtista();
-// ExibirPlaylist(rockNacional);
 
 void ExibirPlaylist(Playlist playlist)
 {
@@ -237,5 +260,32 @@ class Playlist : ICollection<Musica>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+}
+
+class PlayerDeMusica
+{
+    private Queue<Musica> fila = [];
+    public void AdicionarNaFila(Musica musica)
+    {
+        fila.Enqueue(musica);
+    }
+
+    public void AdicionarNaFila(Playlist playlist)
+    {
+        foreach (var musica in playlist)
+            AdicionarNaFila(musica);
+    }
+
+    public Musica? ProximaMusicaDaFila()
+    {
+        if (fila.Count == 0) return null;
+        return fila.Dequeue();
+    }
+
+    public IEnumerable<Musica> Fila()
+    {
+        foreach (var musica in fila)
+            yield return musica;
     }
 }
