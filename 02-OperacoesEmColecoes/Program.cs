@@ -29,6 +29,7 @@ player.AdicionarNaFila(musica1);
 player.AdicionarNaFila(rockNacional);
 
 ExibirFila(player);
+ExibirHistorico(player);
 
 var proxima = player.ProximaMusicaDaFila();
 if (proxima is not null)
@@ -37,6 +38,17 @@ else
     Console.WriteLine("\nFila de reprodução vazia");
 
 ExibirFila(player);
+ExibirHistorico(player);
+
+var anterior = player.MusicaAnterior();
+
+if (anterior is not null)
+    Console.WriteLine($"\nTocando a música anterior: {anterior.Titulo}...");
+else
+    Console.WriteLine("\nHistórico de reprodução vazio");
+
+ExibirFila(player);
+ExibirHistorico(player);
 
 //ExibirMaisTocadas(rockNacional, legiaoUrbana);
 
@@ -46,6 +58,15 @@ ExibirFila(player);
 
 // rockNacional.OrdenarPorArtista();
 // ExibirPlaylist(rockNacional);
+
+void ExibirHistorico(PlayerDeMusica player)
+{
+    Console.WriteLine("\nExibindo o histórico:");
+    foreach (var musica in player.Historico())
+    {
+        Console.WriteLine($"\t - {musica.Titulo}");
+    }
+}
 
 void ExibirFila(PlayerDeMusica player)
 {
@@ -265,7 +286,8 @@ class Playlist : ICollection<Musica>
 
 class PlayerDeMusica
 {
-    private Queue<Musica> fila = [];
+    private Queue<Musica> fila = []; // primeiro a entrar, primeiro a sair (FIFO)
+    private Stack<Musica> pilha = []; // último a entrar, primeiro a sair (LIFO)
     public void AdicionarNaFila(Musica musica)
     {
         fila.Enqueue(musica);
@@ -280,12 +302,26 @@ class PlayerDeMusica
     public Musica? ProximaMusicaDaFila()
     {
         if (fila.Count == 0) return null;
-        return fila.Dequeue();
+        var musica = fila.Dequeue();
+        pilha.Push(musica);
+        return musica;
+    }
+
+    public Musica? MusicaAnterior()
+    {
+        if (pilha.Count == 0) return null;
+        return pilha.Pop();
     }
 
     public IEnumerable<Musica> Fila()
     {
         foreach (var musica in fila)
+            yield return musica;
+    }
+
+    public IEnumerable<Musica> Historico()
+    {
+        foreach (var musica in pilha)
             yield return musica;
     }
 }
