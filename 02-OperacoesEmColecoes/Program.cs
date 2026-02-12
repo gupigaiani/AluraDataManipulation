@@ -12,15 +12,61 @@ rockNacional.Add(musica1);
 rockNacional.Add(musica3);
 rockNacional.Add(musica4);
 rockNacional.Add(musica5);
+rockNacional.Add(new Musica { Titulo = "Eduardo e Mônica", Artista = "Legião Urbana", Duracao = 530 }); 
 
 ExibirPlaylist(rockNacional);
 
-rockNacional.OrdenarPorDuracao();
+var legiaoUrbana = new Playlist() { Nome = "Mais populares da Legião" };
+legiaoUrbana.Add(musica1);
+legiaoUrbana.Add(musica2);
+legiaoUrbana.Add(musica4);
+legiaoUrbana.Add(musica5);
 
-ExibirPlaylist(rockNacional);
+ExibirPlaylist(legiaoUrbana);
 
-rockNacional.OrdenarPorArtista();
-ExibirPlaylist(rockNacional);
+ExibirMaisTocadas(rockNacional, legiaoUrbana);
+
+void ExibirMaisTocadas(Playlist playlist1, Playlist playlist2)
+{
+    // Musica (chave/key), Contagem (valor/value)
+    Dictionary<Musica, int> ranking = [];
+
+    foreach (var musica in playlist1)
+    {
+        ranking.Add(musica, 1);
+    }
+    foreach (var musica in playlist2)
+    {
+        if (ranking.TryGetValue(musica, out int contagem))
+        {
+            contagem++;
+            ranking[musica] = contagem;
+        }
+        else
+        {
+            ranking[musica] = 1;
+        }
+    }
+
+    List<KeyValuePair<Musica, int>> top = new(ranking); // [..ranking];
+    top.Sort(new PorContagem());
+
+    Console.WriteLine("\nTop 3 músicas mais incluídas nas playlists:");
+    int contador = 1;
+    foreach (var par in top)
+    {
+        Console.WriteLine($"\t - {par.Key.Titulo}");
+        contador++;
+        if (contador > 3) break;
+    }
+}
+
+// rockNacional.OrdenarPorDuracao();
+
+// ExibirPlaylist(rockNacional);
+
+// rockNacional.OrdenarPorArtista();
+// ExibirPlaylist(rockNacional);
 
 void ExibirPlaylist(Playlist playlist)
 {
@@ -60,6 +106,14 @@ void ExibirMusicaAleatoria(Playlist playlist)
     }
 }
 
+class PorContagem : IComparer<KeyValuePair<Musica, int>>
+{
+    public int Compare(KeyValuePair<Musica, int> x, KeyValuePair<Musica, int> y)
+    {
+        return y.Value.CompareTo(x.Value);
+    }
+}
+
 class PorArtista : IComparer<Musica>
 {
     public int Compare(Musica? x, Musica? y)
@@ -93,11 +147,25 @@ class Musica : IComparable
         if (other is Musica outraMusica) return this.Duracao.CompareTo(outraMusica.Duracao);
         return -1;
     }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (obj is Musica outraMusica) 
+            return this.Titulo.Equals(outraMusica.Titulo) && this.Artista.Equals(outraMusica.Artista);
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return this.Titulo.GetHashCode() ^ this.Artista.GetHashCode();
+    }
 }
 
 class Playlist : ICollection<Musica>
 {
-    private List<Musica> lista = new List<Musica>();
+    private HashSet<Musica> set = [];
+    private List<Musica> lista = [];
     public string Nome { get; set; }
 
     // propriedade 'Count' da interface ICollection<T>, retorna a quantidade de músicas na playlist
@@ -108,7 +176,10 @@ class Playlist : ICollection<Musica>
 
     public void Add(Musica musica)
     {
-        lista.Add(musica);
+        if (set.Add(musica))
+        {
+            lista.Add(musica);
+        }
     }
 
     public void Clear()
