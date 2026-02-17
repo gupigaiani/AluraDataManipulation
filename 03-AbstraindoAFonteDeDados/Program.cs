@@ -1,8 +1,10 @@
 ﻿using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
-var musicas = ObterMusicas(stream);
-ExibirMusicas(musicas);
+var musicasDoColdplay = 
+    ObterMusicas(stream)       // 1. obtenção dos dados
+    .FiltrarPor("Coldplay");   // 2. filtragem por artista
+ExibirMusicas(musicasDoColdplay);
 
 void ExibirMusicas(IEnumerable<Musica> musicas)
 {
@@ -29,6 +31,17 @@ IEnumerable<Musica> ObterMusicas(StreamReader stream)
         };
         yield return musica;
         linha = stream.ReadLine();
+    }
+}
+
+static class MusicasExtensions
+{
+    public static IEnumerable<Musica> FiltrarPor(this IEnumerable<Musica> musicas, string artista)
+    {
+        foreach (var musica in musicas)
+        {
+            if (musica.Artista == artista) yield return musica;
+        }
     }
 }
 
