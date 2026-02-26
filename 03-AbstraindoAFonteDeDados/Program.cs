@@ -3,8 +3,8 @@ using var stream = new StreamReader(arquivo);
 
 var musicasDoColdplay = 
     ObterMusicas(stream)               // 1. obtenção dos dados
-    .FiltrarPor(FiltrarPorMetallica)   // 2. filtragem por artista
-    .FiltrarPor(FiltrarMaisLongas);    // 3. filtragem por duração
+    .Where(musica => musica.Titulo.StartsWith("A"))   // 2. filtragem por artista
+    .Where(m => m.Duracao > 300);    // 3. filtragem por duração
 ExibirMusicas(musicasDoColdplay);
 
 void ExibirMusicas(IEnumerable<Musica> musicas)
@@ -38,17 +38,18 @@ IEnumerable<Musica> ObterMusicas(StreamReader stream)
 bool FiltrarPorArtista(Musica musica) => musica.Artista == "artista";
 bool FiltrarMaisLongas(Musica m) => m.Duracao >= 400;
 bool FiltrarPorMetallica(Musica mus) => mus.Artista == "Metallica";
+bool FiltrarPorColdplay(Musica musica) => musica.Artista == "Coldplay";
 bool FiltrarPorTituloQueComecaComA(Musica musica) => musica.Titulo.StartsWith("A");
 
 Func<Musica, bool> condicao = FiltrarMaisLongas; // delegate = tipos que representam métodos com a mesma assinatura
 
 static class MusicasExtensions
 {
-    public static IEnumerable<Musica> FiltrarPor(this IEnumerable<Musica> musicas, Func<Musica, bool> condicao)
+    public static IEnumerable<T> FiltrarPor<T>(this IEnumerable<T> colecao, Func<T, bool> condicao)
     {
-        foreach (var musica in musicas)
+        foreach (var elemento in colecao)
         {
-            if (condicao(musica)) yield return musica;
+            if (condicao(elemento)) yield return elemento;
         }
     }
 }
