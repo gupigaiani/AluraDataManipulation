@@ -1,12 +1,40 @@
 ﻿using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
-var artistaComMaiorQtdeMusicas = ObterMusicas(stream)
-    .GroupBy(m => m.Artista)
-    .Select(g => new { Artista = g.Key, Musicas = g, Total = g.Count() })
-    .MaxBy(a => a.Total);
-if (artistaComMaiorQtdeMusicas is not null)
-    Console.WriteLine($"Artista com maior quantidade de músicas é {artistaComMaiorQtdeMusicas.Artista} com {artistaComMaiorQtdeMusicas.Total} músicas!");
+void OperacoesDeVerificacaoDeExistencia(StreamReader stream)
+{
+    var musicas = ObterMusicas(stream).ToList();
+
+    var artistas = musicas
+        .GroupBy(m => m.Artista)
+        .Where(g => g.Any(m => m.Duracao >= 480));
+
+    Console.WriteLine("\nArtistas com músicas acima de 8 minutos: ");
+    foreach (var artista in artistas)
+    {
+        Console.WriteLine($"\t - {artista.Key}");
+    }
+
+    var reggae = musicas
+        .GroupBy(m => m.Artista)
+        .Where(g => g.Any(m => m.Generos.Contains("Reggae")));
+
+    Console.WriteLine("\nArtistas com músicas de Reggae: ");
+    foreach (var artista in reggae)
+    {
+        Console.WriteLine($"\t - {artista.Key}");
+    }
+}
+
+void ArtistaComMaiorQtde(StreamReader stream)
+{
+    var artistaComMaiorQtdeMusicas = ObterMusicas(stream)
+        .GroupBy(m => m.Artista)
+        .Select(g => new { Artista = g.Key, Musicas = g, Total = g.Count() })
+        .MaxBy(a => a.Total);
+    if (artistaComMaiorQtdeMusicas is not null)
+        Console.WriteLine($"Artista com maior quantidade de músicas é {artistaComMaiorQtdeMusicas.Artista} com {artistaComMaiorQtdeMusicas.Total} músicas!");
+}
 
 void OperacoesDeObtencaoDeElementos(StreamReader stream)
 {
