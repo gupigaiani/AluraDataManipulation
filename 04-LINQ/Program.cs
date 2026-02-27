@@ -1,7 +1,21 @@
 ﻿using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
-EstatisticasDeMusicas(stream);
+void OperacoesDeAgrupamento(StreamReader stream)
+{
+    var artistas = ObterMusicas(stream)
+        .GroupBy(m => m.Artista);
+
+    Console.WriteLine("\nExibindo as músicas de cada artista");
+    foreach (var artista in artistas.Take(5))
+    {
+        Console.WriteLine($"Artista: {artista.Key} com {artista.Count()} músicas");
+        foreach (var musica in artista)
+        {
+            Console.WriteLine($"\t - {musica.Titulo}");
+        }
+    }
+}
 
 void EstatisticasDeMusicas(StreamReader stream)
 {
@@ -12,7 +26,7 @@ void EstatisticasDeMusicas(StreamReader stream)
     Console.WriteLine($"\nA música com menor duração da coleção leva {musicas.Min(m => m.Duracao)} segundos");
     Console.WriteLine($"\nA música com maior duração da coleção leva {musicas.Max(m => m.Duracao)} segundos");
     Console.WriteLine($"\nA duração média das músicas da coleção é {musicas.Average(m => m.Duracao)} segundos");
-    Console.WriteLine($"\nVocê vai levar {musicas.Sum(m => m.Duracao)/(3600*24)} dias para ouvir toda a coleção!");
+    Console.WriteLine($"\nVocê vai levar {musicas.Sum(m => m.Duracao) / (3600 * 24)} dias para ouvir toda a coleção!");
 }
 
 void OperacoesDeProjecao2(StreamReader stream)
@@ -80,6 +94,7 @@ IEnumerable<Musica> ObterMusicas(StreamReader stream)
         yield return musica;
         linha = stream.ReadLine();
     }
+    Console.WriteLine("Fim do processamento");
 }
 
 class Musica
