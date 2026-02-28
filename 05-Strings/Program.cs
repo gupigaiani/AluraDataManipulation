@@ -1,11 +1,18 @@
 ﻿using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
-var musicas = ObterMusicas(stream)
+var musica = ObterMusicas(stream)
     .Where(m => m.Titulo.StartsWith('T'))
-    .Take(50);
+    .FirstOrDefault();
 
-//ExibirMusicas(musicas);
+if (musica is not null)
+{
+    //Console.WriteLine("Título da música: " + musica.Titulo); // concatenação tradicional
+    Console.WriteLine($"Título da música: {musica.Titulo}"); // interpolação
+    musica.Titulo = musica.Titulo.Replace("The ", ""); // imutabilidade
+    //musica.Titulo = musica.Titulo.ToUpper();
+    Console.WriteLine($"Título da música: {musica.Titulo}");
+}
 
 void ValidandoSenha()
 {
@@ -58,7 +65,7 @@ IEnumerable<Musica> ObterMusicas(StreamReader stream)
             Titulo = partes[0],
             Artista = partes[1],
             Duracao = Convert.ToInt32(partes[2]),
-            Generos = partes[3].Split(',').Select(g => g.Trim()),
+            Generos = partes[3].Split(',', StringSplitOptions.TrimEntries),
             Lancamento = Convert.ToDateTime(partes[4])
         };
         yield return musica;
