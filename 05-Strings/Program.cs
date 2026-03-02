@@ -1,6 +1,22 @@
 ﻿using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
+
+
+void Interning()
+{
+    var artista1 = "Coldplay"; // interning - string literal
+    var artista2 = "Coldplay";
+    var artista3 = new string("Coldplay"); // não faz interning 
+    var artista4 = "COLDPLAY";
+    var artista5 = string.Intern(artista1.ToUpper()); // HEAP x
+
+    Console.WriteLine(artista1 == artista2); // True
+    Console.WriteLine(ReferenceEquals(artista1, artista3)); // True - pool de strings
+    Console.WriteLine(ReferenceEquals(artista1, artista4));
+    Console.WriteLine(ReferenceEquals(artista4, artista5));
+}
+
 void ComparandoStrings()
 {
     var musicas = ObterMusicas(stream)
