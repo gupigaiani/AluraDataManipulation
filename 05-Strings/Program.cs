@@ -1,17 +1,25 @@
 ﻿using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
-var musica = ObterMusicas(stream)
-    .Where(m => m.Titulo.StartsWith('T'))
-    .FirstOrDefault();
+var musicas = ObterMusicas(stream)
+    .Take(20);
 
-if (musica is not null)
+ExibirMusicasEmTabela(musicas);
+
+void AlterandoOTitulo(StreamReader stream)
 {
-    //Console.WriteLine("Título da música: " + musica.Titulo); // concatenação tradicional
-    Console.WriteLine($"Título da música: {musica.Titulo}"); // interpolação
-    musica.Titulo = musica.Titulo.Replace("The ", ""); // imutabilidade
-    //musica.Titulo = musica.Titulo.ToUpper();
-    Console.WriteLine($"Título da música: {musica.Titulo}");
+    var musica = ObterMusicas(stream)
+        .Where(m => m.Titulo.StartsWith('T'))
+        .FirstOrDefault();
+
+    if (musica is not null)
+    {
+        //Console.WriteLine("Título da música: " + musica.Titulo); // concatenação tradicional
+        Console.WriteLine($"Título da música: {musica.Titulo}"); // interpolação
+        musica.Titulo = musica.Titulo.Replace("The ", ""); // imutabilidade
+                                                           //musica.Titulo = musica.Titulo.ToUpper();
+        Console.WriteLine($"Título da música: {musica.Titulo}");
+    }
 }
 
 void ValidandoSenha()
@@ -54,6 +62,27 @@ void ExibirMusicas(IEnumerable<Musica> musicas)
     }
 }
 
+void ExibirMusicasEmTabela(IEnumerable<Musica> musicas)
+{
+    var titulo = "\nMúsicas do arquivo:";
+    Console.WriteLine(titulo);
+
+    var colunaTitulo = "Titulo".PadRight(40);
+    var colunaArtista = "Artista".PadRight(30);
+    var colunaDuracao = "Duração".PadRight(10);
+    var colunaLancamento = "Lançada Em".PadRight(15);
+    Console.WriteLine($"{colunaTitulo}{colunaArtista}{colunaDuracao}{colunaLancamento}");
+    var borda = "".PadRight(100, '=');
+    Console.WriteLine(borda);
+    
+    foreach (var musica in musicas)
+    {
+        var duracao = string.Format("{0,-10:F3}", musica.Duracao/60.0);
+        var linha = $"{musica.Titulo,-40}{musica.Artista, -30}{duracao}{musica.Lancamento, -15:dd/MM/yyyy}";
+        Console.WriteLine(linha);
+    }
+}
+
 IEnumerable<Musica> ObterMusicas(StreamReader stream)
 {
     var linha = stream.ReadLine();
@@ -81,4 +110,8 @@ class Musica
     public int Duracao { get; set; }
     public IEnumerable<string> Generos { get; set; }
     public DateTime Lancamento { get; set; }
+    public override string ToString()
+    {
+        return $"{musica.Titulo} ({musica.Artista}) - {musica.Duracao}s [{musica.Lancamento}]";
+    }
 }
