@@ -1,7 +1,10 @@
 ﻿using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
+var musicas = ObterMusicas(stream)
+    .Take(20);
 
+ExibirMusicasEmTabela(musicas);
 
 void Interning()
 {
@@ -113,15 +116,18 @@ IEnumerable<Musica> ObterMusicas(StreamReader stream)
     while (linha is not null)
     {
         var partes = linha.Split(';');
-        var musica = new Musica
+        if (partes.Length == 5)
         {
-            Titulo = partes[0],
-            Artista = partes[1],
-            Duracao = Convert.ToInt32(partes[2]),
-            Generos = partes[3].Split(',', StringSplitOptions.TrimEntries),
-            Lancamento = Convert.ToDateTime(partes[4])
-        };
-        yield return musica;
+            var musica = new Musica
+            {
+                Titulo = string.IsNullOrWhiteSpace(partes[0]) ? "Título não encontrado" : partes[0],
+                Artista = string.IsNullOrWhiteSpace(partes[1]) ? "Artista não encontrado" : partes[1],
+                Duracao = int.TryParse(partes[2], out int duracao) ? duracao : 350,
+                Generos = partes[3].Split(',', StringSplitOptions.TrimEntries),
+                Lancamento = DateTime.TryParse(partes[4], out var data) ? data : DateTime.Today
+            };
+            yield return musica;
+        }
         linha = stream.ReadLine();
     }
     Console.WriteLine("Chegou ao fim do processamento!");
