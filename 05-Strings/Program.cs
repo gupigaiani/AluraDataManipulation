@@ -1,10 +1,18 @@
 ﻿using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
-var musicas = ObterMusicas(stream)
-    .Take(20);
+void ComparandoStrings()
+{
+    var musicas = ObterMusicas(stream)
+        .Where(musica => musica.Artista.Equals("COLDPLAY", StringComparison.OrdinalIgnoreCase))
+        //.Where(m => m.Artista.ToUpper() == "COLDPLAY") --> menos performático
+        .Take(20);
 
-ExibirMusicasEmTabela(musicas);
+    // Métodos que utilizam StringComparison
+    // Equals, StartsWith, EndsWith, IndexOf, Contais, Replace
+
+    ExibirMusicasEmTabela(musicas);
+}
 
 void AlterandoOTitulo(StreamReader stream)
 {
@@ -17,7 +25,7 @@ void AlterandoOTitulo(StreamReader stream)
         //Console.WriteLine("Título da música: " + musica.Titulo); // concatenação tradicional
         Console.WriteLine($"Título da música: {musica.Titulo}"); // interpolação
         musica.Titulo = musica.Titulo.Replace("The ", ""); // imutabilidade
-                                                           //musica.Titulo = musica.Titulo.ToUpper();
+        //musica.Titulo = musica.Titulo.ToUpper();
         Console.WriteLine($"Título da música: {musica.Titulo}");
     }
 }
@@ -74,11 +82,11 @@ void ExibirMusicasEmTabela(IEnumerable<Musica> musicas)
     Console.WriteLine($"{colunaTitulo}{colunaArtista}{colunaDuracao}{colunaLancamento}");
     var borda = "".PadRight(100, '=');
     Console.WriteLine(borda);
-    
+
     foreach (var musica in musicas)
     {
-        var duracao = string.Format("{0,-10:F3}", musica.Duracao/60.0);
-        var linha = $"{musica.Titulo,-40}{musica.Artista, -30}{duracao}{musica.Lancamento, -15:dd/MM/yyyy}";
+        var duracao = string.Format("{0,-10:F3}", musica.Duracao / 60.0);
+        var linha = $"{musica.Titulo,-40}{musica.Artista,-30}{duracao}{musica.Lancamento,-15:dd/MM/yyyy}";
         Console.WriteLine(linha);
     }
 }
@@ -112,6 +120,6 @@ class Musica
     public DateTime Lancamento { get; set; }
     public override string ToString()
     {
-        return $"{musica.Titulo} ({musica.Artista}) - {musica.Duracao}s [{musica.Lancamento}]";
+        return $"{Titulo} ({Artista}) - {Duracao}s [{Lancamento}]";
     }
 }
