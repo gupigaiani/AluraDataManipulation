@@ -3,10 +3,23 @@
 using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
-var musicas = ObterMusicas(stream)
-    .Take(20);
+// var musicas = ObterMusicas(stream)
+//     .Take(20);
 
-ExibirMusicasEmTabela(musicas);
+// ExibirMusicasEmTabela(musicas);
+
+void ArtistasComCaracteresEspeciais()
+{
+    var regex = new Regex(@"[^a-zA-z0-9 ]");
+
+    var artistas = ObterMusicas(stream)
+        .Where(m => regex.IsMatch(m.Artista)) // ^ -> negação
+        .Select(m => m.Artista)
+        .Distinct()
+        .OrderBy(a => a);
+
+    foreach (var artista in artistas) Console.WriteLine(artista);
+}
 
 void ExibirMusicas(IEnumerable<Musica> musicas)
 {
@@ -53,7 +66,7 @@ IEnumerable<Musica> ObterMusicas(StreamReader stream)
         {
             var minutos = int.Parse(match.Groups[1].Value);
             var segundos = int.Parse(match.Groups[2].Value);
-            duracao = (minutos*60)+segundos;
+            duracao = (minutos * 60) + segundos;
         }
         if (partes.Length == 5)
         {
