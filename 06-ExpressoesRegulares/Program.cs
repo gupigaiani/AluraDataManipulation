@@ -3,10 +3,47 @@
 using var arquivo = new FileStream("musicas.csv", FileMode.Open, FileAccess.Read);
 using var stream = new StreamReader(arquivo);
 
-// var musicas = ObterMusicas(stream)
-//     .Take(20);
+MusicasComNumerosRomanos();
 
-// ExibirMusicasEmTabela(musicas);
+void MusicasComNumerosRomanos()
+{
+    var regex = new Regex(@"\b[IVXLCDM]+\b");
+    var musicas = ObterMusicas(stream)
+        .Where(m => regex.IsMatch(m.Titulo))
+        .Take(20);
+
+    ExibirMusicasEmTabela(musicas);
+}
+
+void MusicasComLetrasRepetidas()
+{
+    var regex = new Regex(@"\w*(\w)\1{2,}\w");
+    var musicas = ObterMusicas(stream)
+        .Where(m => regex.IsMatch(m.Titulo))
+        .Take(20);
+
+    ExibirMusicasEmTabela(musicas);
+}
+
+void MusicasQueComecamETerminamComAMesmaPalavra()
+{
+    var regex = new Regex(@"^(\w+).*\1$");
+    var musicas = ObterMusicas(stream)
+        .Where(m => regex.IsMatch(m.Titulo))
+        .Take(20);
+
+    ExibirMusicasEmTabela(musicas);
+}
+
+void MusicasComDuasPalavras()
+{
+    var regex = new Regex(@"^\w+ \w+$");
+    var musicas = ObterMusicas(stream)
+        .Where(m => regex.IsMatch(m.Titulo))
+        .Take(20);
+
+    ExibirMusicasEmTabela(musicas);
+}
 
 void ArtistasComCaracteresEspeciais()
 {
